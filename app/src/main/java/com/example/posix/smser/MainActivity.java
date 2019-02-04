@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             SmsAsync smsAsync = new SmsAsync();
             smsAsync.execute("http://192.168.1.3/rpi2b/cgi-bin/garagedoor.py?cmd=status&txtonly=1", to);
+            edit.getText().clear();
         }
     }
 
