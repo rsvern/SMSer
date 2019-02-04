@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SMSer</string>
+    <string name="test_smsasync">test SmsAsync</string>
+    <string name="test_smssend">test SMS send</string>
+    <string name="phonenum">Outgoing</string>
+    <string name="allow">Allow</string>
+    <string name="sms_test_phonenum">Phone Number</string>
+</resources>
