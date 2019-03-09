@@ -38,6 +38,10 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
             reply = convertStreamToString(in);
             Log.i(TAG, "Success getting URL [" + reply.length() + "]");
             reply = truncate(reply, 160, true);
+            if (reply == null || reply.length() == 0) {
+                reply = conn.getResponseMessage();
+                Log.i(TAG, "response: " + reply);
+            }
         } catch (MalformedURLException e) {
             Log.e(TAG, "Malformed URL exception");
             reply = "Malformed URL exception.";
@@ -60,7 +64,6 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
             Log.e(TAG, "Unexpected URL exception: ", e);
             reply = "UnexpectedURLException: " + e.getMessage();
         }
-
 
         Log.i(TAG, "reply: " + reply);
         if (reply != null && reply.length() > 0) {
