@@ -26,6 +26,22 @@
             </intent-filter>
         </receiver>
 
+        <!-- Done playing around with binary an WAP Push messages
+        <receiver android:name = ".BinarySmsReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.DATA_SMS_RECEIVED" />
+                <data
+                    android:scheme="sms"
+                    android:host="*"
+                    android:port="8484" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.provider.Telephony.WAP_PUSH_RECEIVED" />
+                <data android:mimeType="application/vnd.wap.connectivity-wbxml" />
+            </intent-filter>
+        </receiver>
+        -->
+
     </application>
 
 </manifest>

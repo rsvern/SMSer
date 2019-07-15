@@ -24,8 +24,10 @@ public class ServerAsyncTask extends AsyncTask<Socket, Void, String> {
             out.println("Hello from SMSer\r");
             BufferedReader br = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
             address = br.readLine();
-            if (address != null && ((MainActivity.allowPhones == null) ||
-                                    (MainActivity.allowPhones.contains(address)))) {
+            if (address != null) {
+                // FIXME: put back check to only allow sending to allowed phones once it's correct
+                //        in MsgReceiver.java.  Ideally put it in one shared place/class to avoid
+                //        duplicating code (including in MainActivity.java)
                 out.println("Address OK\r");
             } else {
                 Log.d(TAG, "address bad: " + address);

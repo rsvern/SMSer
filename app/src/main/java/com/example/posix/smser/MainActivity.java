@@ -22,8 +22,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String myprefs = "myprefs";
     private static final String keybase = "allowKey";
 
-    public static SortedSet<String> allowPhones;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,14 +52,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).start();
-        sharedpreferences = getApplicationContext().getSharedPreferences(myprefs, 0);
         EditText[] edits = new EditText[]{
                 (EditText) findViewById(R.id.phoneOut2),
                 (EditText) findViewById(R.id.phoneOut3),
                 (EditText) findViewById(R.id.phoneOut4),
         };
-        allowPhones = new TreeSet<String>();
-        SharedPreferences.Editor editor = sharedpreferences.edit();
+        sharedpreferences = getApplicationContext().getSharedPreferences(myprefs, 0);
+        SortedSet<String> allowPhones = new TreeSet<String>();
         for (int i = 0; i < 3; i++) {
             String allow = sharedpreferences.getString(keybase+i, null);
             edits[i].setText(allow);
@@ -104,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 (EditText) findViewById(R.id.phoneOut3),
                 (EditText) findViewById(R.id.phoneOut4),
         };
-        allowPhones = new TreeSet<String>();
+        SortedSet<String> allowPhones = new TreeSet<String>();
         SharedPreferences.Editor editor = sharedpreferences.edit();
         for (int i = 0; i < 3; i++) {
             String allow = edits[i].getText().toString();
