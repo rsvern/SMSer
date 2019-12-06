@@ -60,7 +60,8 @@
         android:hint="@string/sms_test_phonenum"
         android:inputType="phone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/phoneOut" />
+        app:layout_constraintTop_toBottomOf="@+id/phoneOut"
+        android:autofillHints="phoneNumber" />
 
     <EditText
         android:id="@+id/phoneOut3"
@@ -71,7 +72,8 @@
         android:hint="@string/sms_test_phonenum"
         android:inputType="phone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/phoneOut2" />
+        app:layout_constraintTop_toBottomOf="@+id/phoneOut2"
+        android:autofillHints="phoneNumber" />
 
     <EditText
         android:id="@+id/phoneOut4"
@@ -82,7 +84,8 @@
         android:hint="@string/sms_test_phonenum"
         android:inputType="phone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/phoneOut3" />
+        app:layout_constraintTop_toBottomOf="@+id/phoneOut3"
+        android:autofillHints="phoneNumber" />
 
     <EditText
         android:id="@+id/phoneOut"
@@ -93,6 +96,7 @@
         android:hint="@string/sms_test_phonenum"
         android:inputType="phone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        android:autofillHints="phoneNumber" />
 
 </android.support.constraint.ConstraintLayout>

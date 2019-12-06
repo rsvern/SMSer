@@ -38,13 +38,13 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Log.i(TAG, "Creating ServerSocket on 8484");
                     ServerSocket socServer = new ServerSocket(8484);
-                    Socket socClient = null;
+                    Socket socClient;
                     while (true) {
                         socClient = socServer.accept();
                         //For each client new instance of AsyncTask will be created
                         Log.d(TAG, "creating new ServerAsyncTask");
                         ServerAsyncTask serverAsyncTask = new ServerAsyncTask();
-                        serverAsyncTask.execute(new Socket[] {socClient});
+                        serverAsyncTask.execute(socClient);
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "exception on ServerSocket");
@@ -53,12 +53,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
         EditText[] edits = new EditText[]{
-                (EditText) findViewById(R.id.phoneOut2),
-                (EditText) findViewById(R.id.phoneOut3),
-                (EditText) findViewById(R.id.phoneOut4),
+                findViewById(R.id.phoneOut2),
+                findViewById(R.id.phoneOut3),
+                findViewById(R.id.phoneOut4),
         };
         sharedpreferences = getApplicationContext().getSharedPreferences(myprefs, 0);
-        SortedSet<String> allowPhones = new TreeSet<String>();
+        SortedSet<String> allowPhones = new TreeSet<>();
         for (int i = 0; i < 3; i++) {
             String allow = sharedpreferences.getString(keybase+i, null);
             edits[i].setText(allow);
@@ -69,20 +69,20 @@ public class MainActivity extends AppCompatActivity {
 
     // test SmsAsync handler
     public void SmsAsyncTest(View view) {
-        EditText edit = (EditText)findViewById(R.id.phoneOut);
+        EditText edit = findViewById(R.id.phoneOut);
         String to = edit.getText().toString();
         if (to.isEmpty()) {
             Log.e(TAG, "Empty phone number");
         } else {
             SmsAsync smsAsync = new SmsAsync();
-            smsAsync.execute("http://192.168.1.3/rpi2b/cgi-bin/garagedoor.py?cmd=status&txtonly=1", to);
+            smsAsync.execute("http://192.168.1.6/rpi2b/cgi-bin/garagedoor.py?cmd=status&txtonly=1", to);
             edit.getText().clear();
         }
     }
 
     // test SmsSend
     public void SmsSendTest(View view) {
-        EditText edit = (EditText)findViewById(R.id.phoneOut);
+        EditText edit = findViewById(R.id.phoneOut);
         String to = edit.getText().toString();
         if (to.isEmpty()) {
             Log.e(TAG, "Empty phone number");
@@ -97,11 +97,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void SavePhone(View view) {
         EditText[] edits = new EditText[]{
-                (EditText) findViewById(R.id.phoneOut2),
-                (EditText) findViewById(R.id.phoneOut3),
-                (EditText) findViewById(R.id.phoneOut4),
+                findViewById(R.id.phoneOut2),
+                findViewById(R.id.phoneOut3),
+                findViewById(R.id.phoneOut4),
         };
-        SortedSet<String> allowPhones = new TreeSet<String>();
+        SortedSet<String> allowPhones = new TreeSet<>();
         SharedPreferences.Editor editor = sharedpreferences.edit();
         for (int i = 0; i < 3; i++) {
             String allow = edits[i].getText().toString();

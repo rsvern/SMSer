@@ -15,7 +15,6 @@ import java.util.TreeSet;
 
 public class MsgReceiver extends BroadcastReceiver {
     private static final String TAG = "SMSer";
-    private SharedPreferences sharedpreferences;
     private static final String myprefs = "myprefs";
     private static final String keybase = "allowKey";
 
@@ -24,7 +23,7 @@ public class MsgReceiver extends BroadcastReceiver {
         try {
             SmsMessage message = GetMessage(intent);
             String address = message.getOriginatingAddress();
-            String body = message.getMessageBody();
+            String body = message.getMessageBody().trim();
             // IP address fixed by using a static IP address on the host.
             String urlstr = "http://192.168.42.12/";
 
@@ -32,8 +31,8 @@ public class MsgReceiver extends BroadcastReceiver {
 
             // FIXME: move all this preference junk into some other shared class thingy so it's
             //        not duplicated everywhere with hard coded values/counts/etc.
-            sharedpreferences = context.getSharedPreferences(myprefs, 0);
-            SortedSet<String> allowPhones = new TreeSet<String>();
+            SharedPreferences sharedpreferences = context.getSharedPreferences(myprefs, 0);
+            SortedSet<String> allowPhones = new TreeSet<>();
             for (int i = 0; i < 3; i++) {
                 String allow = sharedpreferences.getString(keybase+i, null);
                 if (allow != null && !allow.isEmpty()) allowPhones.add(allow);
@@ -42,19 +41,19 @@ public class MsgReceiver extends BroadcastReceiver {
             // No allow set means anyone, otherwise only allowed (in theory)
             Log.d(TAG, "allowed: " + allowPhones);
             if ((allowPhones.isEmpty()) || allowPhones.contains(address)) {
-                Log.i(TAG, "Awesome sender: " + address);
-                Log.i(TAG, "Act on body: " + body);
                 String firstword = (body.contains(" ") ? body.split(" ")[0] : body).toUpperCase();
-                Log.i(TAG, "firstword: " + firstword);
+                Log.i(TAG, "Awesome sender: " + address + ", Firstword: " + firstword);
+                Log.d(TAG, "Act on body: " + body);
                 if (firstword.equals("ON") || firstword.equals("OFF")) {
-                    urlstr += ("avr1913/MainZone/index.put.asp?cmd0=PutZone_OnOff/" + firstword + "%26ZoneName=ZONE2");
+                    urlstr += ("avr1913/MainZone/index.put.asp?cmd0=PutZone_OnOff/" + firstword +
+                               "%26cmd1=PutMasterVolumeSet/-34%26ZoneName=ZONE2");
                 } else {
-                    urlstr += "rpi2b/cgi-bin/garagedoor.py?cmd=status&txtonly=1";
+                    urlstr += ("rpi2b/cgi-bin/garagedoor.py?txtonly=1&cmd=" + firstword);
                 }
                 SmsAsync smsAsync = new SmsAsync();
                 smsAsync.execute(urlstr, address);
             } else {
-                Log.i(TAG, "Ignoring - not awesome sender: " + address);
+                Log.i(TAG, "Ignoring sender: " + address);
             }
         } catch (Exception e) {
             Log.e(TAG, "Error - exception somewhere");
@@ -70,7 +69,7 @@ public class MsgReceiver extends BroadcastReceiver {
             message = msgs[0];
         } else {
             Bundle bundle = intent.getExtras();
-            Object pdus[] = (Object[]) bundle.get("pdus");
+            Object[] pdus = (Object[]) bundle.get("pdus");
             message = SmsMessage.createFromPdu((byte[]) pdus[0]);
         }
         return message;

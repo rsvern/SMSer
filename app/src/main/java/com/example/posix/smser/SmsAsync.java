@@ -5,15 +5,14 @@ import android.telephony.SmsManager;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progress, Result
     private static final String TAG="SMSer";
@@ -73,8 +72,8 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
         return null;
     }
 
-    private static String convertStreamToString(InputStream is) throws UnsupportedEncodingException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+    private static String convertStreamToString(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
         StringBuilder sb = new StringBuilder();
         String line;
         try {

@@ -15,7 +15,7 @@ public class ServerAsyncTask extends AsyncTask<Socket, Void, String> {
 
     @Override
     protected String doInBackground(Socket... params) {
-        String address = null;
+        String address;
         String msg = "";
         Socket mySocket = params[0];
         try {
@@ -50,7 +50,7 @@ public class ServerAsyncTask extends AsyncTask<Socket, Void, String> {
                 mySocket.close();
                 return "done";
             }
-            if (msg != null && msg.length() > 0) {
+            if (msg.length() > 0) {
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage(address, null, msg, null, null);
                 out.println("SMS sent OK\r");
