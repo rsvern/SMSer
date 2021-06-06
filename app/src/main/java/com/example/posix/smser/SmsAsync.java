@@ -28,8 +28,8 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
         try {
             URL url = new URL(urlstr);
             conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(3000);
-            conn.setConnectTimeout(3000);
+            conn.setReadTimeout(6000);
+            conn.setConnectTimeout(6000);
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
             conn.setDoOutput(false);
