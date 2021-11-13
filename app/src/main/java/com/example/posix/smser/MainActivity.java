@@ -57,14 +57,25 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.phoneOut3),
                 findViewById(R.id.phoneOut4),
         };
-        sharedpreferences = getApplicationContext().getSharedPreferences(myprefs, 0);
+        sharedpreferences = getApplicationContext().getSharedPreferences(SmsAsync.myprefs, 0);
         SortedSet<String> allowPhones = new TreeSet<>();
         for (int i = 0; i < 3; i++) {
-            String allow = sharedpreferences.getString(keybase+i, null);
+            String allow = sharedpreferences.getString(SmsAsync.keybase+i, null);
             edits[i].setText(allow);
             if (allow != null && !allow.isEmpty()) allowPhones.add(allow);
         }
         Log.i(TAG, "allowPhones: " + allowPhones);
+        String address = sharedpreferences.getString(SmsAsync.retry_addr, null);
+        String urlstr = sharedpreferences.getString(SmsAsync.retry_url, null);
+        if ((address != null) && (urlstr != null)) {
+            Log.i(TAG, "retrying previous URL: " + urlstr);
+            SharedPreferences.Editor editor = sharedpreferences.edit();
+            editor.remove(SmsAsync.retry_addr);
+            editor.remove(SmsAsync.retry_url);
+            editor.apply();
+            SmsAsync smsAsync = new SmsAsync(getApplicationContext());
+            smsAsync.execute(urlstr, address, "no");
+        }
     }
 
     // test SmsAsync handler
@@ -74,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         if (to.isEmpty()) {
             Log.e(TAG, "Empty phone number");
         } else {
-            SmsAsync smsAsync = new SmsAsync();
+            SmsAsync smsAsync = new SmsAsync(getApplicationContext());
             smsAsync.execute("http://192.168.1.6/rpi2b/cgi-bin/garagedoor.py?cmd=status&txtonly=1", to);
             edit.getText().clear();
         }
@@ -106,17 +117,17 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 3; i++) {
             String allow = edits[i].getText().toString();
             edits[i].getText().clear();
-            editor.putString(keybase+i, null);
+            editor.putString(SmsAsync.keybase+i, null);
             if (!allow.isEmpty()) allowPhones.add(allow);
         }
         Log.i(TAG, "allowPhones: " + allowPhones);
         int i = 0;
         for (String allow : allowPhones) {
             edits[i].setText(allow);
-            editor.putString(keybase+i, allow);
+            editor.putString(SmsAsync.keybase+i, allow);
             i++;
         }
-        editor.commit();
+        editor.apply();
     }
 
     private void requestAllPermissions() {
