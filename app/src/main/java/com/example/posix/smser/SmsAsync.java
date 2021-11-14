@@ -62,7 +62,7 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
             Log.e(TAG, "Malformed URL exception");
             reply = "Malformed URL exception.";
         } catch (SocketTimeoutException e) {
-            // This seems to happen even though everything is fine (network wise) and
+            // This seems to happen occasionally even though everything is fine (network wise) and
             //  only seems to recover by restarting the application.
             if (restart.equalsIgnoreCase("yes")) {
                 Log.e(TAG, "Attempting a restart with retry.");
@@ -105,6 +105,10 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
         } catch (Exception e) {
             Log.e(TAG, "Unexpected URL exception: ", e);
             reply = "UnexpectedURLException: " + e.getMessage();
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
         }
 
         Log.i(TAG, "reply: " + reply);
