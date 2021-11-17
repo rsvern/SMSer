@@ -45,9 +45,9 @@ public class ServerAsyncTask extends AsyncTask<Socket, Void, String> {
             }
             Log.d(TAG, "tcp to: " + address);
             Log.d(TAG, "tcp msg: " + msg);
+            mySocket.close();
             if (line == null) {
                 Log.d(TAG, "null: premature close");
-                mySocket.close();
                 return "done";
             }
             if (msg.length() > 0) {
@@ -57,7 +57,6 @@ public class ServerAsyncTask extends AsyncTask<Socket, Void, String> {
             } else {
                 out.println("SMS not sent\r");
             }
-            mySocket.close();
         } catch (IOException e) {
             Log.d(TAG, "socket receive exception");
             e.printStackTrace();

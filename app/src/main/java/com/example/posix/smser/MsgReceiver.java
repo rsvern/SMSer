@@ -43,7 +43,7 @@ public class MsgReceiver extends BroadcastReceiver {
             Log.d(TAG, "allowed: " + allowPhones);
             if ((allowPhones.isEmpty()) || allowPhones.contains(address)) {
                 String firstword = (body.contains(" ") ? body.split(" ")[0] : body).toUpperCase();
-                Log.i(TAG, "Awesome sender: " + address + ", Firstword: " + firstword);
+                Log.i(TAG, "Allowed sender: " + address + ", Firstword: " + firstword);
                 Log.d(TAG, "Act on body: " + body);
                 if (firstword.equals("DAMNIT")) {
                     Log.i(TAG, "Attempting application restart");
@@ -68,6 +68,9 @@ public class MsgReceiver extends BroadcastReceiver {
 
     // doRestart() taken from StackOverflow:
     // https://stackoverflow.com/questions/6609414/how-do-i-programmatically-restart-an-android-app
+    // FIXME: Further google'n indicates System.exit() on Android may not be doing exactly what
+    //        is needed with the other threads and things going on.  Seems to work at least some
+    //        of the time for now.
     public static void doRestart(Context c) {
         try {
             //check if the context is given
