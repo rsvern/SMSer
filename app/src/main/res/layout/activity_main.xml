@@ -51,6 +51,17 @@
         app:layout_constraintStart_toEndOf="@+id/phoneOut2"
         app:layout_constraintTop_toBottomOf="@+id/button2" />
 
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="145dp"
+        android:onClick="UpdateTether"
+        android:text="Update"
+        app:layout_constraintStart_toEndOf="@+id/tetherLocal"
+        app:layout_constraintTop_toBottomOf="@+id/button3" />
+
     <EditText
         android:id="@+id/phoneOut2"
         android:layout_width="wrap_content"
@@ -98,5 +109,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button"
         android:autofillHints="phoneNumber" />
+
+    <EditText
+        android:id="@+id/tetherLocal"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="40dp"
+        android:ems="10"
+        android:hint="local"
+        android:inputType="none"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/phoneOut4"
+        android:autofillHints="localTetherIP" />
+
+    <EditText
+        android:id="@+id/tetherRemote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="remote"
+        android:inputType="none"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tetherLocal"
+        android:autofillHints="remoteTetherIP" />
 
 </android.support.constraint.ConstraintLayout>

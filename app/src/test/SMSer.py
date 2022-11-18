@@ -5,7 +5,7 @@ import telnetlib
 import sys
 import argparse
 
-SMSER_IP = '192.168.42.129'
+SMSER_IP = '192.168.1.20` # '192.168.42.129'
 SMSER_PORT = 8484
 
 parser = argparse.ArgumentParser()

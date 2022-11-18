@@ -25,8 +25,8 @@ public class MsgReceiver extends BroadcastReceiver {
             SmsMessage message = GetMessage(intent);
             String address = message.getOriginatingAddress();
             String body = message.getMessageBody().trim();
-            // IP address fixed by using a static IP address on the host.
-            String urlstr = "http://192.168.42.12/";
+            // FIXME: this is a static address on current network (phone fixed at 192.168.1.20)
+            String urlstr = "http://192.168.1.6/";
 
             Log.i(TAG, "Received SMS from: " + address);
 
