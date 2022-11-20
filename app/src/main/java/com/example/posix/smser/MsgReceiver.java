@@ -26,6 +26,8 @@ public class MsgReceiver extends BroadcastReceiver {
             String address = message.getOriginatingAddress();
             String body = message.getMessageBody().trim();
             // FIXME: this is a static address on current network (phone fixed at 192.168.1.20)
+            // FIXME: retrieve shared preference SmsAsync.remote ("remoteAddress") saved from
+            //        UpdateTether().
             String urlstr = "http://192.168.1.6/";
 
             Log.i(TAG, "Received SMS from: " + address);

@@ -1,7 +1,10 @@
 package com.example.posix.smser;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.DhcpInfo;
+import android.net.wifi.WifiManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,8 +29,6 @@ import java.util.TreeSet;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "SMSer";
     private SharedPreferences sharedpreferences;
-    private static final String myprefs = "myprefs";
-    private static final String keybase = "allowKey";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +103,8 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Empty phone number");
         } else {
             SmsAsync smsAsync = new SmsAsync(getApplicationContext());
-            smsAsync.execute("http://192.168.1.6/rpi2b/cgi-bin/garagedoor.py?cmd=status&txtonly=1", to);
+            smsAsync.execute("http://192.168.1.6/rpi2b/cgi-bin/garagedoor.py?cmd=status&txtonly=1",
+                    to, "no");
             edit.getText().clear();
         }
     }
@@ -146,6 +148,13 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    public String intToIp(int addr) {
+        return  ((addr & 0xFF) + "." +
+                ((addr >>>= 8) & 0xFF) + "." +
+                ((addr >>>= 8) & 0xFF) + "." +
+                ((addr >>>= 8) & 0xFF));
+    }
+
     public void UpdateTether(View view) {
         Log.i(TAG, "update tether information");
 
@@ -168,7 +177,14 @@ public class MainActivity extends AppCompatActivity {
                         local.setText(addr.getHostAddress());
                         Log.i(TAG, "last octet = " + octets[3]);
 
-                        // FIXME: find remote or kick off finding remote
+                        // FIXME: find remote or kick off finding remote and save result to
+                        //        shared preference SmsAsync.remote ("remoteAddress").
+
+                        if (ifname == "wlan0") { // WiFi interface is easy
+                            final WifiManager wm = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                            DhcpInfo d = wm.getDhcpInfo();
+                            remote.setText(intToIp(d.gateway));
+                        }
                         return;
                     }
                 }
@@ -191,11 +207,13 @@ public class MainActivity extends AppCompatActivity {
         String permission1 = Manifest.permission.RECEIVE_SMS;
         String permission2 = Manifest.permission.SEND_SMS;
         String permission3 = Manifest.permission.INTERNET;
+        String permission4 = Manifest.permission.ACCESS_WIFI_STATE;
 
-        String[] permission_list = new String[3];
+        String[] permission_list = new String[4];
         permission_list[0] = permission1;
         permission_list[1] = permission2;
         permission_list[2] = permission3;
+        permission_list[3] = permission4;
         ActivityCompat.requestPermissions(this, permission_list, 2);
     }
 }

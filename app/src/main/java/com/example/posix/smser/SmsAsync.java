@@ -27,6 +27,7 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
     public static final String keybase = "allowKey";
     public static final String retry_addr = "retryAddress";
     public static final String retry_url = "retryUrl";
+    public static final String server = "remoteAddress";
 
     public SmsAsync(final Context context) {
         mContextRef = new WeakReference<>(context);
