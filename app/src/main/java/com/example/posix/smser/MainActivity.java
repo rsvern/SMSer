@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.i(TAG, "allowPhones: " + allowPhones);
 
+        UpdateServer(null);
+
         String address = sharedpreferences.getString(SmsAsync.retry_addr, null);
         String urlstr = sharedpreferences.getString(SmsAsync.retry_url, null);
         if ((address != null) && (urlstr != null)) {
@@ -102,9 +104,13 @@ public class MainActivity extends AppCompatActivity {
         if (to.isEmpty()) {
             Log.e(TAG, "Empty phone number");
         } else {
-            SmsAsync smsAsync = new SmsAsync(getApplicationContext());
-            smsAsync.execute("http://192.168.1.6/rpi2b/cgi-bin/garagedoor.py?cmd=status&txtonly=1",
-                    to, "no");
+            sharedpreferences = getApplicationContext().getSharedPreferences(SmsAsync.myprefs, 0);
+            String savedRemote = sharedpreferences.getString(SmsAsync.server, "unset");
+            Log.i(TAG, "savedRemote = " + savedRemote);
+            if (savedRemote != "unset") {
+                SmsAsync smsAsync = new SmsAsync(getApplicationContext());
+                smsAsync.execute("http://" + savedRemote + "/rpi2b/cgi-bin/garagedoor.py?cmd=status&txtonly=1", to, "no");
+            }
             edit.getText().clear();
         }
     }
@@ -155,47 +161,86 @@ public class MainActivity extends AppCompatActivity {
                 ((addr >>>= 8) & 0xFF));
     }
 
-    public void UpdateTether(View view) {
-        Log.i(TAG, "update tether information");
+    public void UpdateServer(View view) {
+        Log.i(TAG, "update server information");
 
         EditText local = findViewById(R.id.tetherLocal);
         EditText remote = findViewById(R.id.tetherRemote);
+
+        sharedpreferences = getApplicationContext().getSharedPreferences(SmsAsync.myprefs, 0);
+        String savedRemote = sharedpreferences.getString(SmsAsync.server, "unset");
+        Log.i(TAG, "savedRemote = " + savedRemote);
+
+        String newRemote = remote.getText().toString();
+        if (newRemote == null || newRemote.length() == 0) {
+            newRemote = null;
+        }
+        Log.i(TAG, "newRemote = " + newRemote);
 
         local.getText().clear();
         remote.getText().clear();
 
         try {
-            String ifname = "wlan0"; // rndis0
-            NetworkInterface ni = NetworkInterface.getByName(ifname);
-            Log.i(TAG, "ni: " + ni);
-            if (ni != null && ni.isUp()) {
-                List<InetAddress> addrs = Collections.list(ni.getInetAddresses());
-                for (InetAddress addr : addrs) {
-                    Log.i(TAG, "ipAddress: " + addr.getHostAddress());
-                    if (addr instanceof Inet4Address) {
-                        byte[] octets = addr.getAddress();
-                        local.setText(addr.getHostAddress());
-                        Log.i(TAG, "last octet = " + octets[3]);
+            NetworkInterface ni = null;
+            String ifname = null;
+            InetAddress localAddr = null;
 
-                        // FIXME: find remote or kick off finding remote and save result to
-                        //        shared preference SmsAsync.remote ("remoteAddress").
-
-                        if (ifname == "wlan0") { // WiFi interface is easy
-                            final WifiManager wm = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                            DhcpInfo d = wm.getDhcpInfo();
-                            remote.setText(intToIp(d.gateway));
-                        }
-                        return;
-                    }
-                }
-                Log.i(TAG, "no IPv4 address found");
-                local.setText("no IPv4");
-                remote.setText("address");
-            } else {
-                Log.i(TAG, "network " + ifname + " interface not found");
-                local.setText(ifname);
-                remote.setText("missing");
+            // try USB tether first (rndis0)
+            ifname = "rndis0";
+            ni = NetworkInterface.getByName(ifname);
+            Log.i(TAG, "ni(" + ifname + ") = " + ni);
+            if (ni == null || !ni.isUp()) {
+                // try wifi next (wlan0)
+                ifname = "wlan0";
+                ni = NetworkInterface.getByName(ifname);
+                Log.i(TAG, "ni(" + ifname + ") = " + ni);
             }
+            if (ni == null || !ni.isUp()) {
+                local.setText("interface");
+                remote.setText("failure");
+                return;
+            }
+
+            List<InetAddress> addrs = Collections.list(ni.getInetAddresses());
+            for (InetAddress addr : addrs) {
+                Log.i(TAG, "ipAddress: " + addr.getHostAddress());
+                if (addr instanceof Inet4Address) {
+                    localAddr = addr;
+                    local.setText(addr.getHostAddress());
+                    // FIXME: might want to also save local address to persistent storage
+
+                    //byte[] octets = localAddr.getAddress();
+                    //Log.i(TAG, "last octet = " + octets[3]);
+                    break;
+                }
+            }
+            if (localAddr == null) {
+                local.setText("missing");
+                remote.setText("ipv4address");
+                return;
+            }
+
+            if (ifname == "rndis0") { // USB tether
+                // FIXME: currently no code to determine server IP address so make the edit text
+                //        active so it can be set manually (then UPDATE pressed).
+                remote.setEnabled(true);
+                return;
+            }
+
+            if (ifname == "wlan0") { // WiFi interface is easy, assume gateway
+                final WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                DhcpInfo d = wm.getDhcpInfo();
+                newRemote = intToIp(d.gateway);
+            }
+
+            if (newRemote != null) {
+                Log.i(TAG, "savedRemote " + savedRemote + " -> " + newRemote);
+                remote.setText(newRemote);
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putString(SmsAsync.server, newRemote);
+                editor.apply();
+            }
+
         } catch (SocketException se) {
             Log.e(TAG, "socket exception getting network interface");
             local.setText("error");

@@ -25,22 +25,19 @@ public class MsgReceiver extends BroadcastReceiver {
             SmsMessage message = GetMessage(intent);
             String address = message.getOriginatingAddress();
             String body = message.getMessageBody().trim();
-            // FIXME: this is a static address on current network (phone fixed at 192.168.1.20)
-            // FIXME: retrieve shared preference SmsAsync.remote ("remoteAddress") saved from
-            //        UpdateTether().
-            String urlstr = "http://192.168.1.6/";
 
             Log.i(TAG, "Received SMS from: " + address);
 
             // FIXME: move all this preference junk into some other shared class thingy so it's
             //        not duplicated everywhere with hard coded values/counts/etc.
             SharedPreferences sharedpreferences = context.getSharedPreferences(SmsAsync.myprefs, 0);
+            String remoteServer = sharedpreferences.getString(SmsAsync.server, "192.168.1.6");
             SortedSet<String> allowPhones = new TreeSet<>();
             for (int i = 0; i < 3; i++) {
                 String allow = sharedpreferences.getString(SmsAsync.keybase+i, null);
                 if (allow != null && !allow.isEmpty()) allowPhones.add(allow);
             }
-
+            String urlstr = "http://" + remoteServer +"/";
             // No allow(s) set means anyone, otherwise only allowed (in theory)
             Log.d(TAG, "allowed: " + allowPhones);
             if ((allowPhones.isEmpty()) || allowPhones.contains(address)) {
@@ -52,8 +49,9 @@ public class MsgReceiver extends BroadcastReceiver {
                     doRestart(context);
                     return; // restart failed
                 } else if (firstword.equals("ON") || firstword.equals("OFF")) {
+                    // receiver configured to set zone 2 volume at power on to "46"
                     urlstr += ("avr1913/MainZone/index.put.asp?cmd0=PutZone_OnOff/" + firstword +
-                               "%26cmd1=PutMasterVolumeSet/-34%26ZoneName=ZONE2");
+                               "%26ZoneName=ZONE2");
                 } else {
                     urlstr += ("rpi2b/cgi-bin/garagedoor.py?txtonly=1&cmd=" + firstword);
                 }
