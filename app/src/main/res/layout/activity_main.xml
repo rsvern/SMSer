@@ -134,4 +134,13 @@
         app:layout_constraintTop_toBottomOf="@+id/tetherLocal"
         android:autofillHints="remoteTetherIP" />
 
+    <CheckBox
+        android:id="@+id/checkbox1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Don't Send OK Replies"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tetherRemote" />
+
 </android.support.constraint.ConstraintLayout>

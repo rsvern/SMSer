@@ -28,6 +28,7 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
     public static final String retry_addr = "retryAddress";
     public static final String retry_url = "retryUrl";
     public static final String server = "remoteAddress";
+    public static final String no_ok_resp = "sendReply";
 
     public SmsAsync(final Context context) {
         mContextRef = new WeakReference<>(context);
@@ -41,7 +42,13 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
         String reply;
         HttpURLConnection conn = null;
         SmsManager smsManager = SmsManager.getDefault();
-
+        Context context = mContextRef.get();
+        SharedPreferences sharedpreferences = null;
+        boolean noOkResp = false;
+        if (context != null) {
+            sharedpreferences = context.getSharedPreferences(myprefs, 0);
+            noOkResp = sharedpreferences.getString(SmsAsync.no_ok_resp, "false").equals("true");
+        }
         Log.i(TAG, "url: " + urlstr);
         try {
             URL url = new URL(urlstr);
@@ -54,7 +61,7 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
             InputStream in = conn.getInputStream();
             reply = convertStreamToString(in);
             Log.i(TAG, "Success getting URL [" + reply.length() + "]");
-            reply = truncate(reply, 160, true);
+            reply = truncate(reply.trim(), 160, true);
             if (reply == null || reply.length() == 0) {
                 reply = conn.getResponseMessage();
                 Log.i(TAG, "response: " + reply);
@@ -69,9 +76,8 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
                 Log.e(TAG, "Attempting a restart with retry.");
                 reply = "URL timeout.  Restart with retry in progress...";
                 smsManager.sendTextMessage(address, null, reply, null, null);
-                Context context = mContextRef.get();
-                if (context != null) {
-                    SharedPreferences sharedpreferences = context.getSharedPreferences(myprefs, 0);
+
+                if ((context != null) && (sharedpreferences != null)) {
                     SharedPreferences.Editor editor = sharedpreferences.edit();
                     editor.putString(retry_addr, address);
                     editor.putString(retry_url, urlstr);
@@ -113,8 +119,13 @@ public class SmsAsync extends AsyncTask<String, Void, Void> { // Params, Progres
         }
 
         Log.i(TAG, "reply: " + reply);
-        if (reply != null && reply.length() > 0) {
-            smsManager.sendTextMessage(address, null, reply, null, null);
+        if ((reply != null) && (reply.length() > 0)) {
+            String firstword = (reply.contains(" ") ? reply.split(" ")[0] : reply).toUpperCase();
+            if ("OK".equals(firstword) && noOkResp) {
+               Log.d(TAG, "Skipping OK reply");
+            } else {
+                smsManager.sendTextMessage(address, null, reply, null, null);
+            }
         }
         return null;
     }

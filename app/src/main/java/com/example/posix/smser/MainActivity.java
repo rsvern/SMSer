@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import java.io.IOException;
@@ -21,7 +23,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -84,6 +85,18 @@ public class MainActivity extends AppCompatActivity {
 
         UpdateServer(null);
 
+        boolean isChecked = sharedpreferences.getString(SmsAsync.no_ok_resp, "false").equals("true");
+        CheckBox cb = findViewById(R.id.checkbox1);
+        cb.setChecked(isChecked);
+        saveNoOkResp(isChecked);
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                saveNoOkResp(isChecked);
+            }
+        });
+
+        // self restart after error so retry last URL
         String address = sharedpreferences.getString(SmsAsync.retry_addr, null);
         String urlstr = sharedpreferences.getString(SmsAsync.retry_url, null);
         if ((address != null) && (urlstr != null)) {
@@ -130,6 +143,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void saveNoOkResp(boolean isChecked) {
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        if (isChecked) {
+            editor.putString(SmsAsync.no_ok_resp, "true");
+        } else {
+            editor.putString(SmsAsync.no_ok_resp, "false");
+        }
+        editor.apply();
+    }
     public void SavePhone(View view) {
         EditText[] edits = new EditText[]{
                 findViewById(R.id.phoneOut2),
